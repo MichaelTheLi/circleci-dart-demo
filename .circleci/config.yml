@@ -89,10 +89,11 @@ jobs:
       - setup_remote_docker
       - heroku/push-docker-image:
           app-name: dart-test-1
+          process-types: web api
           recursive: true
       - heroku/release-docker-image:
           app-name: dart-test-1
-          recursive: true
+          process-types: web api
   build-api-docker:
     docker:
       - image: cimg/base:2020.08

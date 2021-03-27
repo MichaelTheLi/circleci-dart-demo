@@ -22,8 +22,9 @@ Future main() async {
   int port = 8080;
 
   if (envVars.containsKey('PORT')) {
-    port = envVars['PORT'] as int;
+    port = int.parse(envVars['PORT']);
   }
+  print("Listening on port: $port");
 
   HttpServer server = await HttpServer.bind(
     InternetAddress.anyIPv4,

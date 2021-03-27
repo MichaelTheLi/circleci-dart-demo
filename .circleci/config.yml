@@ -59,12 +59,8 @@ workflows:
           context: dart-docker
           requires:
             - test
-      - heroku/push-docker-image:
+      - deploy:
           context: heroku
-          app-name: dart-test-1
-          recursive: true
-          pre-deploy:
-            - setup_remote_docker
 
 ##################
 # Job Definitions
@@ -84,7 +80,15 @@ jobs:
           command: pub run test --reporter json | tojunit --output test-results/dart-tests/circleci_dart_demo_test-report.xml
       - store_test_results:
           path: test-results
-
+  deploy:
+    executor: heroku/default
+    steps:
+      - checkout
+      - heroku/install
+      - setup_remote_docker
+      - heroku/deploy-via-git:
+          app-name: dart-test-1
+          recursive: true
   build-api-docker:
     docker:
       - image: cimg/base:2020.08

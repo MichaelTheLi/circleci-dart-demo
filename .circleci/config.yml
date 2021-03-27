@@ -58,6 +58,8 @@ workflows:
       - heroku/push-docker-image:
           context: heroku
           app-name: dart-test-1
+          pre-deploy:
+            - setup_remote_docker
 
 ##################
 # Job Definitions

@@ -103,7 +103,7 @@ jobs:
       - run:
           name: Push docker image to Heroku
           command: |
-            docker tag ${DOCKER_TAG}_api registry.heroku.com/dart-web-1/web
+            docker tag alive/dart-demo-web registry.heroku.com/dart-web-1/web
             docker push registry.heroku.com/dart-web-1/web
   deploy-api:
     executor: heroku/default
@@ -117,7 +117,7 @@ jobs:
       - run:
           name: Push docker image to Heroku
           command: |
-            docker tag ${DOCKER_TAG}_api registry.heroku.com/dart-api-1/web
+            docker tag alive/dart-demo-api registry.heroku.com/dart-api-1/web
             docker push registry.heroku.com/dart-api-1/web
   build-api-docker:
     docker:
@@ -127,13 +127,13 @@ jobs:
       - checkout
       - run:
           name: Build & tag Docker image
-          command: docker build -f containers/api/Dockerfile -t ${DOCKER_TAG}_api -t ${DOCKER_TAG}_api:${CIRCLE_SHA1} .
+          command: docker build -f containers/api/Dockerfile -t alive/dart-demo-web -t alive/dart-demo-api:${CIRCLE_SHA1} .
       - run:
           name: Login to DockerHub and push
           command: |
            echo $DOCKER_PWD | docker login -u $DOCKER_LOGIN --password-stdin
-           docker push ${DOCKER_TAG}_api
-           docker push ${DOCKER_TAG}_api:${CIRCLE_SHA1}
+           docker push alive/dart-demo-api
+           docker push alive/dart-demo-api:${CIRCLE_SHA1}
 
   build-web-docker:
     docker:
@@ -143,10 +143,10 @@ jobs:
       - checkout
       - run:
           name: Build & tag Docker image
-          command: docker build -f containers/web/Dockerfile.api -t ${DOCKER_TAG}_web -t ${DOCKER_TAG}_web:${CIRCLE_SHA1} .
+          command: docker build -f containers/web/Dockerfile -t alive/dart-demo-web -t alive/dart-demo-web:${CIRCLE_SHA1} .
       - run:
           name: Login to DockerHub and push
           command: |
             echo $DOCKER_PWD | docker login -u $DOCKER_LOGIN --password-stdin
-            docker push ${DOCKER_TAG}_web
-            docker push ${DOCKER_TAG}_web:${CIRCLE_SHA1}
+            docker push alive/dart-demo-web
+            docker push alive/dart-demo-web:${CIRCLE_SHA1}

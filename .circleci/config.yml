@@ -104,6 +104,7 @@ jobs:
       - run:
           name: Push docker image to Heroku
           command: |
+            docker pull alive/dart-demo-web
             docker tag alive/dart-demo-web registry.heroku.com/dart-web-1/web
             docker push registry.heroku.com/dart-web-1/web
   deploy-api:
@@ -119,6 +120,7 @@ jobs:
       - run:
           name: Push docker image to Heroku
           command: |
+            docker pull alive/dart-demo-api
             docker tag alive/dart-demo-api registry.heroku.com/dart-api-1/web
             docker push registry.heroku.com/dart-api-1/web
   build-api-docker:

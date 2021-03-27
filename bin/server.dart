@@ -8,6 +8,7 @@
 // Or, you can use the make_a_guess.html UI.
 
 // #docregion main
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math' show Random;
 
@@ -19,7 +20,7 @@ Future main() async {
 
   print("I'm thinking of a number: $myNumber");
 
-  int port = 8080;
+  int port = 8787;
 
   if (envVars.containsKey('PORT')) {
     port = int.parse(envVars['PORT']);
@@ -58,28 +59,28 @@ void handleRequest(HttpRequest request) {
 }
 // #enddocregion handleRequest
 
-// #docregion handleGet, statusCode, uri, write
 void handleGet(HttpRequest request) {
-  // #enddocregion write
   final guess = request.uri.queryParameters['q'];
-  // #enddocregion uri
+
   final response = request.response;
   response.statusCode = HttpStatus.ok;
-  // #enddocregion statusCode
-  // #docregion write
+  response.headers.add('content-type', 'application/json');
+  response.headers.add('Access-Control-Allow-Origin', '*');
+
   if (guess == myNumber.toString()) {
     response
-      ..writeln('true')
-      ..writeln("I'm thinking of another number.")
+      ..writeln('{"result": true, "smaller": false}')
       ..close();
-    // #enddocregion write
+
     myNumber = intGenerator.nextInt(10);
     print("I'm thinking of another number: $myNumber");
+  } else if (int.parse(guess) < myNumber) {
+    response
+      ..writeln('{"result": false, "smaller": false}')
+      ..close();
   } else {
     response
-      ..writeln('false')
-      ..close();
-    // #docregion write
+    ..writeln('{"result": false, "smaller": true}')
+    ..close();
   }
-  // #docregion statusCode, uri
 }

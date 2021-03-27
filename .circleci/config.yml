@@ -107,6 +107,9 @@ jobs:
             docker pull alive/dart-demo-web
             docker tag alive/dart-demo-web registry.heroku.com/dart-web-1/web
             docker push registry.heroku.com/dart-web-1/web
+      - run:
+          name: Release
+          command: heroku container:release -a dart-web-1
   deploy-api:
     executor: heroku/default
     steps:
@@ -123,6 +126,9 @@ jobs:
             docker pull alive/dart-demo-api
             docker tag alive/dart-demo-api registry.heroku.com/dart-api-1/web
             docker push registry.heroku.com/dart-api-1/web
+      - run:
+          name: Release
+          command: heroku container:release -a dart-api-1
   build-api-docker:
     docker:
       - image: cimg/base:2020.08

@@ -86,11 +86,11 @@ jobs:
       - run:
           name: Make folder for test results
           command: mkdir -p test-results/dart-tests
-      - run:
-          name: Run tests
-          command: pub run test --reporter json | tojunit --output test-results/dart-tests/circleci_dart_demo_test-report.xml
-      - store_test_results:
-          path: test-results
+#      - run:
+#          name: Run tests
+#          command: pub run test --reporter json | tojunit --output test-results/dart-tests/circleci_dart_demo_test-report.xml
+#      - store_test_results:
+#          path: test-results
   deploy-web:
     executor: heroku/default
     steps:

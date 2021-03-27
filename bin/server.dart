@@ -20,7 +20,7 @@ Future main() async {
 
   print("I'm thinking of a number: $myNumber");
 
-  int port = 8787;
+  int port = 8080;
 
   if (envVars.containsKey('PORT')) {
     port = int.parse(envVars['PORT']);

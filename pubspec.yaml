@@ -1,7 +1,7 @@
 name: circleci_test_demo
 
 environment:
-  sdk: '>=2.11.0 <3.0.0'
+  sdk: '>=2.10.4 <3.0.0'
 
 dev_dependencies:
   build_runner: '>=1.6.2 <2.0.0'

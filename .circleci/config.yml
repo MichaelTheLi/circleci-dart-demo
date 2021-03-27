@@ -51,13 +51,18 @@ workflows:
   test-and-build:
     jobs:
       - test
-      - build-docker:
+      - build-api-docker:
+          context: dart-docker
+          requires:
+            - test
+      - build-web-docker:
           context: dart-docker
           requires:
             - test
       - heroku/push-docker-image:
           context: heroku
           app-name: dart-test-1
+          recursive: true
           pre-deploy:
             - setup_remote_docker
 
@@ -80,7 +85,7 @@ jobs:
       - store_test_results:
           path: test-results
 
-  build-docker:
+  build-api-docker:
     docker:
       - image: cimg/base:2020.08
     steps:
@@ -88,10 +93,26 @@ jobs:
       - checkout
       - run:
           name: Build & tag Docker image
-          command: docker build -t ${DOCKER_TAG} -t ${DOCKER_TAG}:${CIRCLE_SHA1} .
+          command: docker build -f Dockerfile.api -t ${DOCKER_TAG} -t ${DOCKER_TAG}:${CIRCLE_SHA1} .
       - run:
           name: Login to DockerHub and push
           command: |
            echo $DOCKER_PWD | docker login -u $DOCKER_LOGIN --password-stdin
            docker push ${DOCKER_TAG}
            docker push ${DOCKER_TAG}:${CIRCLE_SHA1}
+
+  build-web-docker:
+    docker:
+      - image: cimg/base:2020.08
+    steps:
+      - setup_remote_docker
+      - checkout
+      - run:
+          name: Build & tag Docker image
+          command: docker build -f Dockerfile.web -t ${DOCKER_TAG} -t ${DOCKER_TAG}:${CIRCLE_SHA1} .
+      - run:
+          name: Login to DockerHub and push
+          command: |
+            echo $DOCKER_PWD | docker login -u $DOCKER_LOGIN --password-stdin
+            docker push ${DOCKER_TAG}
+            docker push ${DOCKER_TAG}:${CIRCLE_SHA1}

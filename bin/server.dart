@@ -15,11 +15,19 @@ Random intGenerator = Random();
 int myNumber = intGenerator.nextInt(10);
 
 Future main() async {
+  Map<String, String> envVars = Platform.environment;
+
   print("I'm thinking of a number: $myNumber");
+
+  int port = 8080;
+
+  if (envVars.containsKey('PORT')) {
+    port = envVars['PORT'] as int;
+  }
 
   HttpServer server = await HttpServer.bind(
     InternetAddress.anyIPv4,
-    8080,
+    port,
   );
   await for (var request in server) {
     handleRequest(request);

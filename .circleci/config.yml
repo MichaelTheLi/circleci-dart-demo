@@ -59,8 +59,19 @@ workflows:
           context: dart-docker
           requires:
             - test
-      - deploy:
-          context: heroku
+
+      - deploy-web:
+          requires:
+            - build-web-docker
+          context:
+            - heroku
+            - dart-docker
+      - deploy-api:
+          requires:
+            - build-api-docker
+          context:
+            - heroku
+            - dart-docker
 
 ##################
 # Job Definitions
@@ -80,20 +91,34 @@ jobs:
           command: pub run test --reporter json | tojunit --output test-results/dart-tests/circleci_dart_demo_test-report.xml
       - store_test_results:
           path: test-results
-  deploy:
+  deploy-web:
     executor: heroku/default
     steps:
       - checkout
       - heroku/install
       - heroku/check-authentication
-      - setup_remote_docker
-      - heroku/push-docker-image:
-          app-name: dart-test-1
-          process-types: web api
-          recursive: true
-      - heroku/release-docker-image:
-          app-name: dart-test-1
-          process-types: web api
+      - run:
+          name: Login to Heroku image
+          command: heroku container:login
+      - run:
+          name: Push docker image to Heroku
+          command: |
+            docker tag ${DOCKER_TAG}_api registry.heroku.com/dart-web-1/web
+            docker push registry.heroku.com/dart-web-1/web
+  deploy-api:
+    executor: heroku/default
+    steps:
+      - checkout
+      - heroku/install
+      - heroku/check-authentication
+      - run:
+          name: Login to Heroku image
+          command: heroku container:login
+      - run:
+          name: Push docker image to Heroku
+          command: |
+            docker tag ${DOCKER_TAG}_api registry.heroku.com/dart-api-1/web
+            docker push registry.heroku.com/dart-api-1/web
   build-api-docker:
     docker:
       - image: cimg/base:2020.08
@@ -102,13 +127,13 @@ jobs:
       - checkout
       - run:
           name: Build & tag Docker image
-          command: docker build -f Dockerfile.api -t ${DOCKER_TAG} -t ${DOCKER_TAG}:${CIRCLE_SHA1} .
+          command: docker build -f containers/api/Dockerfile -t ${DOCKER_TAG}_api -t ${DOCKER_TAG}_api:${CIRCLE_SHA1} .
       - run:
           name: Login to DockerHub and push
           command: |
            echo $DOCKER_PWD | docker login -u $DOCKER_LOGIN --password-stdin
-           docker push ${DOCKER_TAG}
-           docker push ${DOCKER_TAG}:${CIRCLE_SHA1}
+           docker push ${DOCKER_TAG}_api
+           docker push ${DOCKER_TAG}_api:${CIRCLE_SHA1}
 
   build-web-docker:
     docker:
@@ -118,10 +143,10 @@ jobs:
       - checkout
       - run:
           name: Build & tag Docker image
-          command: docker build -f Dockerfile.web -t ${DOCKER_TAG} -t ${DOCKER_TAG}:${CIRCLE_SHA1} .
+          command: docker build -f containers/web/Dockerfile.api -t ${DOCKER_TAG}_web -t ${DOCKER_TAG}_web:${CIRCLE_SHA1} .
       - run:
           name: Login to DockerHub and push
           command: |
             echo $DOCKER_PWD | docker login -u $DOCKER_LOGIN --password-stdin
-            docker push ${DOCKER_TAG}
-            docker push ${DOCKER_TAG}:${CIRCLE_SHA1}
+            docker push ${DOCKER_TAG}_web
+            docker push ${DOCKER_TAG}_web:${CIRCLE_SHA1}

@@ -85,8 +85,12 @@ jobs:
     steps:
       - checkout
       - heroku/install
+      - heroku/check-authentication
       - setup_remote_docker
-      - heroku/deploy-via-git:
+      - push-docker-image:
+          app-name: dart-test-1
+          recursive: true
+      - release-docker-image:
           app-name: dart-test-1
           recursive: true
   build-api-docker:

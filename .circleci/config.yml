@@ -97,6 +97,7 @@ jobs:
       - checkout
       - heroku/install
       - heroku/check-authentication
+      - setup_remote_docker
       - run:
           name: Login to Heroku image
           command: heroku container:login
@@ -111,6 +112,7 @@ jobs:
       - checkout
       - heroku/install
       - heroku/check-authentication
+      - setup_remote_docker
       - run:
           name: Login to Heroku image
           command: heroku container:login

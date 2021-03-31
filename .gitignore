@@ -23,3 +23,4 @@ doc/api/
 
 # Compiled executables
 *.exe
+process.yml

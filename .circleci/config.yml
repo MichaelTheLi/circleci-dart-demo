@@ -70,7 +70,7 @@ jobs:
       - image: google/dart:2.10.4
     working_directory: "~/api"
     steps:
-      - dependencies-web:
+      - dependencies:
           shell: "/bin/bash -eo pipefail"
       - run:
           name: Make folder for test results

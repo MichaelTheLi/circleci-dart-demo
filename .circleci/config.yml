@@ -103,16 +103,20 @@ jobs:
   build-web-docker:
     docker:
       - image: cimg/base:2020.08
+    working_directory: "~/project/web"
     steps:
-      - checkout
+      - checkout:
+          path: "~/project"
       - build-docker:
           dockerfile: web/Dockerfile
           image: alive/dart-demo-web
   build-api-docker:
     docker:
       - image: cimg/base:2020.08
+    working_directory: "~/project/web"
     steps:
-      - checkout
+      - checkout:
+          path: "~/project"
       - build-docker:
           dockerfile: api/Dockerfile
           image: alive/dart-demo-api

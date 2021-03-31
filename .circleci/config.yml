@@ -108,7 +108,6 @@ jobs:
       - checkout:
           path: "~/project"
       - build-docker:
-          dockerfile: web/Dockerfile
           image: alive/dart-demo-web
   build-api-docker:
     docker:
@@ -118,7 +117,6 @@ jobs:
       - checkout:
           path: "~/project"
       - build-docker:
-          dockerfile: api/Dockerfile
           image: alive/dart-demo-api
 
 commands:
@@ -152,16 +150,13 @@ commands:
   build-docker:
     description: "Build docker image"
     parameters:
-      dockerfile:
-        type: string
-        default: "Dockerfile"
       image:
         type: string
     steps:
       - setup_remote_docker
       - run:
           name: Build & tag Docker image
-          command: docker build -f << parameters.dockerfile >> -t << parameters.image >> -t << parameters.image >>:${CIRCLE_SHA1} .
+          command: docker build -t << parameters.image >> -t << parameters.image >>:${CIRCLE_SHA1} .
       - run:
           name: Login to DockerHub and push
           command: |

@@ -88,14 +88,12 @@ jobs:
   deploy-web:
     executor: heroku/default
     steps:
-      - checkout
       - deploy-to-heroku:
           image: alive/dart-demo-web
           app-name: dart-web-1
   deploy-api:
     executor: heroku/default
     steps:
-      - checkout
       - deploy-to-heroku:
           image: alive/dart-demo-api
           app-name: dart-api-1
@@ -112,7 +110,7 @@ jobs:
   build-api-docker:
     docker:
       - image: cimg/base:2020.08
-    working_directory: "~/project/web"
+    working_directory: "~/project/api"
     steps:
       - checkout:
           path: "~/project"

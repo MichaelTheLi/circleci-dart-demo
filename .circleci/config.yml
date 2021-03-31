@@ -53,8 +53,10 @@ jobs:
   test-api:
     docker:
       - image: google/dart:2.10.4
-    working_directory: "~/api"
+    working_directory: "~/project/api"
     steps:
+      - checkout:
+          path: "~/project"
       - dependencies:
           shell: "/bin/bash -eo pipefail"
       - run:
@@ -68,8 +70,10 @@ jobs:
   test-web:
     docker:
       - image: google/dart:2.10.4
-    working_directory: "~/api"
+    working_directory: "~/project/web"
     steps:
+      - checkout:
+          path: "~/project"
       - dependencies:
           shell: "/bin/bash -eo pipefail"
       - run:
@@ -84,12 +88,14 @@ jobs:
   deploy-web:
     executor: heroku/default
     steps:
+      - checkout
       - deploy-to-heroku:
           image: alive/dart-demo-web
           app-name: dart-api-1
   deploy-api:
     executor: heroku/default
     steps:
+      - checkout
       - deploy-to-heroku:
           image: alive/dart-demo-web
           app-name: dart-api-1
@@ -98,6 +104,7 @@ jobs:
     docker:
       - image: cimg/base:2020.08
     steps:
+      - checkout
       - build-docker:
           dockerfile: web/Dockerfile
           image: alive/dart-demo-web
@@ -105,6 +112,7 @@ jobs:
     docker:
       - image: cimg/base:2020.08
     steps:
+      - checkout
       - build-docker:
           dockerfile: api/Dockerfile
           image: alive/dart-demo-api
@@ -120,7 +128,6 @@ commands:
         type: string
         default: "~/.pub-cache"
     steps:
-      - checkout
       - restore_cache:
           keys:
             - v1.4-dependencies-{{ arch }}-{{ checksum "pubspec.lock" }}
@@ -148,7 +155,6 @@ commands:
         type: string
     steps:
       - setup_remote_docker
-      - checkout
       - run:
           name: Build & tag Docker image
           command: docker build -f << parameters.dockerfile >> -t << parameters.image >> -t << parameters.image >>:${CIRCLE_SHA1} .
@@ -166,7 +172,6 @@ commands:
       app-name:
         type: string
     steps:
-      - checkout
       - heroku/install
       - heroku/check-authentication
       - setup_remote_docker

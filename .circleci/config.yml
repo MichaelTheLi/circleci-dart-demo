@@ -13,6 +13,102 @@ orbs:
 aliases:
   - &project_dir "~/project"
 
+###### ################
+# Workflow definition
+###### ################
+workflows:
+  version: 2.1
+  test-and-build-web:
+    jobs:
+      - test-web
+      - build-web-docker:
+          context: dart-docker
+          requires:
+            - test-web
+
+      - deploy-web:
+          requires:
+            - build-web-docker
+          context:
+            - heroku
+            - dart-docker
+  test-and-build-api:
+    jobs:
+      - test-api
+      - build-api-docker:
+          context: dart-docker
+          requires:
+            - test-api
+      - deploy-api:
+          requires:
+            - build-api-docker
+          context:
+            - heroku
+            - dart-docker
+
+##################
+# Job Definitions
+##################
+jobs:
+  test-api:
+    docker:
+      - image: google/dart:2.10.4
+    working_directory: "~/api"
+    steps:
+      - dependencies:
+          shell: "/bin/bash -eo pipefail"
+      - run:
+          name: Make folder for test results
+          command: mkdir -p test-results/dart-tests
+#      - run:
+#          name: Run tests
+#          command: pub run test --reporter json | tojunit --output test-results/dart-tests/circleci_dart_demo_test-report.xml
+#      - store_test_results:
+#          path: test-results
+  test-web:
+    docker:
+      - image: google/dart:2.10.4
+    working_directory: "~/api"
+    steps:
+      - dependencies-web:
+          shell: "/bin/bash -eo pipefail"
+      - run:
+          name: Make folder for test results
+          command: mkdir -p test-results/dart-tests
+#      - run:
+#          name: Run tests
+#          command: pub run test --reporter json | tojunit --output test-results/dart-tests/circleci_dart_demo_test-report.xml
+#      - store_test_results:
+#          path: test-results
+
+  deploy-web:
+    executor: heroku/default
+    steps:
+      - deploy-to-heroku:
+          image: alive/dart-demo-web
+          app-name: dart-api-1
+  deploy-api:
+    executor: heroku/default
+    steps:
+      - deploy-to-heroku:
+          image: alive/dart-demo-web
+          app-name: dart-api-1
+
+  build-web-docker:
+    docker:
+      - image: cimg/base:2020.08
+    steps:
+      - build-docker:
+          dockerfile: web/Dockerfile
+          image: alive/dart-demo-web
+  build-api-docker:
+    docker:
+      - image: cimg/base:2020.08
+    steps:
+      - build-docker:
+          dockerfile: api/Dockerfile
+          image: alive/dart-demo-api
+
 commands:
   dependencies:
     description: "Download dependencies and setup global packages"
@@ -42,121 +138,47 @@ commands:
           paths:
             - .dart_tool
             - << parameters.pub-cache >>
-
-###### ################
-# Workflow definition
-###### ################
-workflows:
-  version: 2.1
-  test-and-build:
-    jobs:
-      - test
-      - build-api-docker:
-          context: dart-docker
-          requires:
-            - test
-      - build-web-docker:
-          context: dart-docker
-          requires:
-            - test
-
-      - deploy-web:
-          requires:
-            - build-web-docker
-          context:
-            - heroku
-            - dart-docker
-      - deploy-api:
-          requires:
-            - build-api-docker
-          context:
-            - heroku
-            - dart-docker
-
-##################
-# Job Definitions
-##################
-jobs:
-  test:
-    docker:
-      - image: google/dart:2.10.4
-    steps:
-      - dependencies:
-          shell: "/bin/bash -eo pipefail"
-      - run:
-          name: Make folder for test results
-          command: mkdir -p test-results/dart-tests
-#      - run:
-#          name: Run tests
-#          command: pub run test --reporter json | tojunit --output test-results/dart-tests/circleci_dart_demo_test-report.xml
-#      - store_test_results:
-#          path: test-results
-  deploy-web:
-    executor: heroku/default
-    steps:
-      - checkout
-      - heroku/install
-      - heroku/check-authentication
-      - setup_remote_docker
-      - run:
-          name: Login to Heroku image
-          command: heroku container:login
-      - run:
-          name: Push docker image to Heroku
-          command: |
-            docker pull alive/dart-demo-web
-            docker tag alive/dart-demo-web registry.heroku.com/dart-web-1/web
-            docker push registry.heroku.com/dart-web-1/web
-      - run:
-          name: Release
-          command: heroku container:release web -a dart-web-1
-  deploy-api:
-    executor: heroku/default
-    steps:
-      - checkout
-      - heroku/install
-      - heroku/check-authentication
-      - setup_remote_docker
-      - run:
-          name: Login to Heroku image
-          command: heroku container:login
-      - run:
-          name: Push docker image to Heroku
-          command: |
-            docker pull alive/dart-demo-api
-            docker tag alive/dart-demo-api registry.heroku.com/dart-api-1/web
-            docker push registry.heroku.com/dart-api-1/web
-      - run:
-          name: Release
-          command: heroku container:release web -a dart-api-1
-  build-api-docker:
-    docker:
-      - image: cimg/base:2020.08
+  build-docker:
+    description: "Build docker image"
+    parameters:
+      dockerfile:
+        type: string
+        default: "Dockerfile"
+      image:
+        type: string
     steps:
       - setup_remote_docker
       - checkout
       - run:
           name: Build & tag Docker image
-          command: docker build -f containers/api/Dockerfile -t alive/dart-demo-api -t alive/dart-demo-api:${CIRCLE_SHA1} .
-      - run:
-          name: Login to DockerHub and push
-          command: |
-           echo $DOCKER_PWD | docker login -u $DOCKER_LOGIN --password-stdin
-           docker push alive/dart-demo-api
-           docker push alive/dart-demo-api:${CIRCLE_SHA1}
-
-  build-web-docker:
-    docker:
-      - image: cimg/base:2020.08
-    steps:
-      - setup_remote_docker
-      - checkout
-      - run:
-          name: Build & tag Docker image
-          command: docker build -f containers/web/Dockerfile -t alive/dart-demo-web -t alive/dart-demo-web:${CIRCLE_SHA1} .
+          command: docker build -f << parameters.dockerfile >> -t << parameters.image >> -t << parameters.image >>:${CIRCLE_SHA1} .
       - run:
           name: Login to DockerHub and push
           command: |
             echo $DOCKER_PWD | docker login -u $DOCKER_LOGIN --password-stdin
-            docker push alive/dart-demo-web
-            docker push alive/dart-demo-web:${CIRCLE_SHA1}
+            docker push << parameters.image >>
+            docker push << parameters.image >>:${CIRCLE_SHA1}
+  deploy-to-heroku:
+    description: "Deploy to heroku"
+    parameters:
+      image:
+        type: string
+      app-name:
+        type: string
+    steps:
+      - checkout
+      - heroku/install
+      - heroku/check-authentication
+      - setup_remote_docker
+      - run:
+          name: Login to Heroku image
+          command: heroku container:login
+      - run:
+          name: Push docker image to Heroku
+          command: |
+            docker pull << parameters.image >>
+            docker tag << parameters.image >> registry.heroku.com/<< parameters.app-name >>/web
+            docker push registry.heroku.com/<< parameters.app-name >>/web
+      - run:
+          name: Release
+          command: heroku container:release web -a << parameters.app-name >>

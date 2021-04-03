@@ -1,7 +1,7 @@
 <!-- Components info: https://angulardart.dev/components -->
 <div>
   <div class="guess-list"
-       *ngFor="let guessList of guessLists; let activeGuessList = last"
+       *ngFor="let guessList of guessLists.reversed; let activeGuessList = last"
        [class.guessed]="!activeGuessList"
   >
     <div class="guess-values">

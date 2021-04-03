@@ -126,7 +126,7 @@ commands:
         default: "/bin/bash --login -eo pipefail"
       pub-cache:
         type: string
-        default: "~/.pub-cache"
+        default: "./.pub-cache"
     steps:
       - restore_cache:
           keys:

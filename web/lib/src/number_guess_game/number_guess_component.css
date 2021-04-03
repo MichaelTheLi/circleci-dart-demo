@@ -1,0 +1,25 @@
+.guess-list.guessed {
+    opacity: 0.8;
+    pointer-events: none;
+}
+
+.guess-values {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+
+    margin-bottom: 20px;
+}
+
+material-button.guess-value {
+    margin: 0 0.29em;
+    min-width: 35px;
+}
+
+material-button.tried {
+    background: slategray;
+}
+
+material-button.correct {
+    background: seagreen;
+}

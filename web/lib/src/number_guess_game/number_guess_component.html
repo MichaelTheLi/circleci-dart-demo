@@ -1,0 +1,26 @@
+<!-- Components info: https://angulardart.dev/components -->
+<div>
+  <div class="guess-list"
+       *ngFor="let guessList of guessLists; let activeGuessList = last"
+       [class.guessed]="!activeGuessList"
+  >
+    <div class="guess-values">
+      <material-button class="guess-value" raised clear-size
+                       *ngFor="let guessVariant of guessList.values"
+                       (trigger)="guess(guessVariant.value)"
+                       [class.tried]="guessVariant.smaller || guessVariant.bigger"
+                       [class.correct]="guessVariant.correct"
+      >
+        <span class="bigger" *ngIf="guessVariant.bigger">&#8594;</span>
+        <span class="smaller" *ngIf="guessVariant.smaller">&#8592;</span>
+        <span class="value" *ngIf="!guessVariant.bigger && !guessVariant.smaller">{{ guessVariant.value }}</span>
+      </material-button>
+    </div>
+  </div>
+
+<!--  <div class="history">-->
+<!--    <p *ngFor="let historyItem of history.reversed; let i=index">-->
+<!--      {{ historyItem }}-->
+<!--    </p>-->
+<!--  </div>-->
+</div>

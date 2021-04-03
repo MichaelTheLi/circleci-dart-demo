@@ -7,48 +7,8 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" type="image/png" href="favicon.png">
     <script defer src="main.dart.js"></script>
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-    <script type="application/javascript">
-      $(function(){
-        $('form').submit(function(){
-          $.get($(this).attr('action'), $(this).serialize(), function(json) {
-            if (json.result) {
-              $('#result').text('Correct, starting from scratch');
-              setTimeout(function () {
-                $('#result').text('Guess');
-              }, 500);
-            } else if (json.smaller) {
-              $('#result').text('Smaller than that');
-            } else {
-              $('#result').text('Greater than that');
-            }
-          }, 'json');
-          return false;
-        });
-      });
-    </script>
   </head>
   <body>
     <my-app>Loading...</my-app>
-    <div>
-      <h4>Guess a number</h4>
-      <form action="https://dart-api-1.herokuapp.com" method="GET">
-        <select name="q">
-          <option value="0">0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-          <option value="6">6</option>
-          <option value="7">7</option>
-          <option value="8">8</option>
-          <option value="9">9</option>
-        </select>
-        <input type="submit" value="Guess">
-      </form>
-      <div id="result">Guess</div>
-    </div>
   </body>
 </html>
